@@ -1,207 +1,128 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[codz]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py.cover
-.hypothesis/
-.pytest_cache/
-cover/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#uv.lock
-
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
-#poetry.toml
-
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
-#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
-#pdm.lock
-#pdm.toml
-.pdm-python
-.pdm-build/
-
-# pixi
-#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
-#pixi.lock
-#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
-#   in the .venv directory. It is recommended not to include this directory in version control.
-.pixi
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.envrc
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
-
-# Abstra
-# Abstra is an AI-powered process automation framework.
-# Ignore directories containing user credentials, local state, and settings.
-# Learn more at https://abstra.io/docs
-.abstra/
-
-# Visual Studio Code
-#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
-#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
-#  you could uncomment the following to ignore the entire vscode folder
-# .vscode/
-
-# Ruff stuff:
-.ruff_cache/
-
-# PyPI configuration file
-.pypirc
-
-# Cursor
-#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
-#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
-#  refer to https://docs.cursor.com/context/ignore-files
-.cursorignore
-.cursorindexingignore
-
-# Marimo
-marimo/_static/
-marimo/_lsp/
-__marimo__/
+import tkinter as tk
+from tkinter import ttk, messagebox
+import sqlite3 as sql
+def add_task():
+    task_string = task_field.get().strip()
+    if not task_string:
+        messagebox.showerror("Error", "Task field is empty!")
+        return
+    if task_string in tasks:
+        messagebox.showwarning("Warning", "Task already exists!")
+        return
+    tasks.append(task_string)
+    the_cursor.execute("INSERT INTO tasks(title) VALUES (?)", (task_string,))
+    the_connection.commit()
+    list_update()
+    task_field.delete(0, tk.END)
+def list_update():
+    clear_list()
+    for task in tasks:
+        task_listbox.insert(tk.END, task)
+def delete_task():
+    try:
+        selected_index = task_listbox.curselection()[0]
+        task = task_listbox.get(selected_index)
+        tasks.remove(task)
+        the_cursor.execute("DELETE FROM tasks WHERE title = ?", (task,))
+        the_connection.commit()
+        list_update()
+    except IndexError:
+        messagebox.showerror("Error", "No task selected!")
+def delete_all_tasks():
+    if messagebox.askyesno("Delete All", "Are you sure you want to delete all tasks?"):
+        tasks.clear()
+        the_cursor.execute("DELETE FROM tasks")
+        the_connection.commit()
+        list_update()
+def clear_list():
+    task_listbox.delete(0, tk.END)
+def close_app():
+    the_connection.commit()
+    the_cursor.close()
+    the_connection.close()
+    guiWindow.destroy()
+def retrieve_database():
+    tasks.clear()
+    for row in the_cursor.execute("SELECT title FROM tasks"):
+        tasks.append(row[0])
+guiWindow = tk.Tk()
+guiWindow.title("To-Do List Manager")
+guiWindow.geometry("500x450")
+guiWindow.resizable(False, False)
+guiWindow.configure(bg="#FAEBD7")
+the_connection = sql.connect("listOfTasks.db")
+the_cursor = the_connection.cursor()
+the_cursor.execute("""
+CREATE TABLE IF NOT EXISTS tasks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT UNIQUE
+)
+""")
+the_connection.commit()
+tasks = []
+header_frame = tk.Frame(guiWindow, bg="light pink")
+functions_frame = tk.Frame(guiWindow, bg="light pink")
+listbox_frame = tk.Frame(guiWindow, bg="light pink")
+header_frame.pack(fill="both")
+functions_frame.pack(side="left", expand=True, fill="both")
+listbox_frame.pack(side="right", expand=True, fill="both")
+header_label = ttk.Label(
+    header_frame,
+    text="To-Do List",
+    font=("time new romans", 16, "bold"),
+    background="light pink",
+    foreground="white"
+)
+header_label.pack(pady=12)
+task_label = ttk.Label(
+    functions_frame,
+    text="Enter the Task:",
+    font=("time new romans", 11, "bold"),
+    background="light pink",
+    foreground="white"
+)
+task_label.place(x=35, y=45)
+task_field = ttk.Entry(functions_frame, font=("Consolas", 12), width=20)
+task_field.place(x=40, y=90)
+add_button = ttk.Button(
+    functions_frame,
+    text="Add Task",
+    width=26,
+    command=add_task
+)
+del_button = ttk.Button(
+    functions_frame,
+    text="Delete Task",
+    width=26,
+    command=delete_task
+)
+del_all_button = ttk.Button(
+    functions_frame,
+    text="Delete All",
+    width=26,
+    command=delete_all_tasks
+)
+exit_button = ttk.Button(
+    functions_frame,
+    text="Exit",
+    width=24,
+    command=close_app
+)
+add_button.place(x=40, y=140)
+del_button.place(x=40, y=180)
+del_all_button.place(x=40, y=220)
+exit_button.place(x=40, y=260)
+task_listbox = tk.Listbox(
+    listbox_frame,
+    width=24,
+    height=11,
+    selectmode=tk.SINGLE,
+    bg="white",
+    fg="black",
+    selectbackground="#8A00D3",
+    selectforeground="white"
+)
+task_listbox.place(x=20, y=30)
+retrieve_database()
+list_update()
+guiWindow.mainloop()
